@@ -1,0 +1,209 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1_H8r1wX1gK60DbLGjY74bKKFbuywXYq7_x3pOyBzQ6U",
+          "mode": "list",
+          "cachedResultName": "News Summ Workflow",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_H8r1wX1gK60DbLGjY74bKKFbuywXYq7_x3pOyBzQ6U/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_H8r1wX1gK60DbLGjY74bKKFbuywXYq7_x3pOyBzQ6U/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "0373365e-00c3-4b50-9a3e-52c6307bcc74",
+      "name": "Google Sheets Trigger",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "yOOs1gr6wVriU6Qe",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Summarize this article: {{ $json.link ?? $json[\"link;\"] ?? $json.newslink }}",
+        "batching": {}
+      },
+      "id": "8d1ab52e-63dd-4113-a8c9-b1aeee653c8e",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "id": "e0260eef-09ed-4eb5-8613-9ee8e7491eb7",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        160,
+        208
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Assume the role of an industry expert and draft a LinkedIn post discussing key points from a news article relevant to artificial intelligence. The post should provide insightful analysis, connect with current industry trends, and encourage professional engagement or discussions. Highlight any notable implications for the industry. LinkedIn supports detailed posts, so ensure it is informative and structured. Add a professional call to action. Directly start with the post content, do not add any primer like \"here is your content for LinkedIn post\".Here's a summary of the article:{{ $json.text }}",
+        "batching": {}
+      },
+      "id": "06744f6c-8294-47d8-b4a6-48708ca5622e",
+      "name": "Basic LLM Chain1",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        592,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "id": "674e2ed4-f242-43cc-a57c-59fd36b76fd6",
+      "name": "Google Gemini Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        528,
+        208
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "person": "bPay3aXbBw",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "id": "ae2d7bfd-5b1e-4aca-80e6-ac16aee98a8f",
+      "name": "Create a post",
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        960,
+        0
+      ],
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "qtMJidYkPP2J3jia",
+          "name": "LinkedIn account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "42813e67-1d67-4cca-b3e0-bc3c7c0eaad3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6947410f7916a6342f5a117d413363618aa4fa20dc36368b2c48f828e569825"
+  },
+  "nodeGroups": [],
+  "id": "OdDi4HB7PFDYJ32h",
+  "tags": []
+}
